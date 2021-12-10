@@ -1,5 +1,6 @@
 // CitirocBinaryDecode.cpp : Defines the entry point for the console application.
 //
+#define FW_USE_VALIDATION 0
 
 #ifdef _WIN32
 #include "stdafx.h"
@@ -37,6 +38,9 @@ int main()
 			uint32_t * datarow = new uint32_t[97];
 			uint32_t *chargeHG = new uint32_t[32];
 			uint32_t *chargeLG = new uint32_t[32];
+			uint32_t TriggerID = 0;
+			uint32_t ValidationID = 0;
+			uint32_t Flags = 0;
 			uint32_t ThresholdSoftware = 1;
 			uint32_t DecodedPackets=0;
 			bool * hit = new bool[32];
@@ -96,10 +100,27 @@ int main()
 							chargeLG[31 - i] = 0;
 
 					}
-					s = 2;
+						
+					if (FW_USE_VALIDATION == 1)
+						s = 2;
+					else
+						s = 5;
+						
 					break;
-
 				case 2:
+					TriggerID = p_ui32[p++];	
+					s = 3;
+					break;
+				case 3:
+					ValidationID = p_ui32[p++];	
+					s = 4;
+					break;		
+				case 4:
+					Flags = p_ui32[p++];	
+					s = 5;
+					break;	
+						
+				case 5:
 					if ((p_ui32[p++] & 0xc0000000) == 0xc0000000)
 					{
 						//Save information on file in a custom format
@@ -107,6 +128,11 @@ int main()
 						file0 << std::setw(16) << EventTimecode << "\t";
 						file0 << std::setw(20) << RunEventTimecode << "\t";
 						file0 << std::setw(16) << EventCounter << "\t";
+						if (FW_USE_VALIDATION == 1) {
+							file0 << std::setw(20) << TriggerID << "\t";
+							file0 << std::setw(20) << ValidationID << "\t";
+							file0 << std::setw(20) << Flags << "\t";
+						}
 						for (int i = 0; i < 32; i++)
 						{
 							file0 << std::setw(4) << std::to_string(hit[i]) << (i == 31 ? "" : "\t");
