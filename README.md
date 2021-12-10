@@ -13,3 +13,8 @@ Install the g++ compiler and type
 g++ CitirocBinaryDecode.cpp -o CitirocBinaryDecode
 ```
 
+# New firmware file format
+
+Firmware and software > 2021.12.6 added a validation data counter (see manual) to the data stored on the files. 
+YOU MUST set to 1 the define `#define FW_USE_VALIDATION 0` in order to be able to decode data 
+
